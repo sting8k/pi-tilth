@@ -11,7 +11,13 @@ Tilth is an AST-aware code reading CLI powered by tree-sitter. It replaces `read
 ## Install
 
 ```bash
-pi install sting8k/pi-tilth
+pi install https://github.com/sting8k/pi-tilth
+```
+
+Or try without installing:
+
+```bash
+pi -e https://github.com/sting8k/pi-tilth
 ```
 
 ## Features
