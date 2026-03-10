@@ -6,8 +6,13 @@
     "keywords": [
         "pi-package"
     ],
-    "dependencies": {
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sting8k/pi-tilth.git"
+    },
+    "peerDependencies": {
         "@mariozechner/pi-coding-agent": "*",
+        "@mariozechner/pi-tui": "*",
         "@sinclair/typebox": "*"
     },
     "pi": {

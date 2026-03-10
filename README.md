@@ -2,6 +2,12 @@
 
 Pi extension that registers [tilth](https://github.com/jahala/tilth) as a native tool for the LLM.
 
+## Install
+
+```bash
+pi install sting8k/pi-tilth
+```
+
 Tilth is an AST-aware code reading CLI powered by tree-sitter. It replaces `read`, `grep`, `find`, and `ls` with a single smart tool that understands code structure — showing definitions first, resolving callee chains, and supporting glob-based file listing.
 
 ## Features
