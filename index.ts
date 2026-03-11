@@ -222,6 +222,32 @@ export default function tilthExtension(pi: ExtensionAPI) {
         },
     });
 
+    // Detect bash calls using rg/grep/cat/find/fd and nudge toward tilth
+    const NUDGE_CMD = /(?:^|\|)\s*(rg|ripgrep|grep|egrep|fgrep|cat|head|tail|less|find|fd|locate)\s/;
+    const NUDGE_HINT = "\n\n[tilth] Hint: consider using the `tilth` tool instead of raw shell commands for code reading/searching — it provides AST-aware results with better context.";
+
+    pi.on("tool_result", async (event) => {
+        // DEBUG: write to file to verify handler fires
+        const { writeFileSync: wfs } = await import("node:fs");
+        wfs("/tmp/tilth-debug.log", `tool_result fired: toolName=${event.toolName} isError=${event.isError} enabled=${isEnabled()} input=${JSON.stringify(event.input).slice(0, 200)}\n`, { flag: "a" });
+
+        if (event.toolName !== "bash" || event.isError || !isEnabled()) return;
+        const command = (event.input as Record<string, unknown>)?.command;
+        if (typeof command !== "string" || !NUDGE_CMD.test(command)) return;
+
+        wfs("/tmp/tilth-debug.log", `MATCH: command=${command.slice(0, 100)}\n`, { flag: "a" });
+
+        const newContent = (event.content ?? []).map((c, i, arr) => {
+            if (i === arr.length - 1 && c.type === "text") {
+                return { type: "text" as const, text: c.text + NUDGE_HINT };
+            }
+            return c;
+        });
+
+        return { content: newContent };
+    });
+
+
     // Auto-scaffold config and enable on session start
     pi.on("session_start", async (_event, _ctx) => {
         const settings = readSettings();
