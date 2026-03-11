@@ -27,6 +27,8 @@ pi -e https://github.com/sting8k/pi-tilth
 - **Persistent config** — state saved to `~/.pi/agent/settings.json` under `"pi-tilth"` key
 - **Auto-enable** — restores tilth mode on session start based on saved config
 - **Styled rendering** — custom `renderCall`/`renderResult` with badge, bold params, and line count summary
+- **Nudge hints** — when tilth mode is on, appends a `[tilth]` hint to bash tool output if the command uses `rg`, `grep`, `find`, `fd`, `cat`, etc., reminding the agent to prefer tilth
+- **Remote command detection** — automatically skips nudge hints for remote commands (`ssh`, `sshpass`, `scp`, `rsync`, `docker exec`, `kubectl exec`) since tilth only works locally
 
 ## Commands
 
