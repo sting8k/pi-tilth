@@ -11,6 +11,12 @@ Tilth is an AST-aware code reading CLI powered by tree-sitter. It replaces `read
 ## Install
 
 ```bash
+pi install npm:pi-tilth
+```
+
+Or from GitHub:
+
+```bash
 pi install https://github.com/sting8k/pi-tilth
 ```
 
