@@ -2,7 +2,7 @@
 
 Pi extension that registers [tilth](https://github.com/jahala/tilth) as a native tool for the LLM.
 
-Tilth is an AST-aware code reading CLI powered by tree-sitter. It replaces `read`, `grep`, `find`, and `ls` with a single smart tool that understands code structure — showing definitions first, resolving callee chains, and supporting glob-based file listing.
+Tilth is an AST-aware code reading CLI powered by tree-sitter. It replaces `read`, `grep`, `find`, and `ls` with a single smart tool that understands code structure — showing definitions first, resolving callee chains, and supporting glob-based file listing plus slash-wrapped regex content search.
 
 ## Requirements
 
@@ -29,6 +29,8 @@ pi -e https://github.com/sting8k/pi-tilth
 ## Features
 
 - **Tool registration** — `tilth` available as a native Pi tool with structured params (query, scope, section, budget, map)
+- **Query modes** — `query` can be a file path, symbol, glob, plain text, or slash-wrapped regex content search like `/handle(Auth|Login)/`
+- **Regex caveat** — upstream tilth supports `/<pattern>/` regex content search, but some regex patterns that contain glob-like characters may still be classified as globs first
 - **Mode toggle** — `/tilth [on|off]` enables/disables tilth mode, removing built-in tools when active
 - **Persistent config** — state saved to `~/.pi/agent/settings.json` under `"pi-tilth"` key
 - **Auto-enable** — restores tilth mode on session start based on saved config

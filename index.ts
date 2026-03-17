@@ -76,7 +76,7 @@ function disableTilth(pi: ExtensionAPI): void {
 const tilthSchema = Type.Object({
     query: Type.String({
         description:
-            "File path to read, symbol name to search for, glob pattern (e.g. '*.ts'), or text to search. " +
+            "File path to read, symbol name to search for, glob pattern (e.g. '*.ts'), plain text to search, or slash-wrapped regex content search (e.g. '/handle(Auth|Login)/'). " +
             "For symbol search, provide the symbol name and set scope to the directory to search in. " +
             "For file reading, provide the file path.",
     }),
@@ -113,7 +113,7 @@ export default function tilthExtension(pi: ExtensionAPI) {
             "with callee chains for following call flows. " +
             "Query types: file path to read, symbol name to find definitions, " +
             "glob pattern (e.g. '*.ts') to list matching files, " +
-            "or quoted text to search content (strings, comments, TODOs). " +
+            "plain text to search content (strings, comments, TODOs), or slash-wrapped regex for content search. " +
             "Supports: Rust, TypeScript, JavaScript, Python, Go, Java, C, C++, Ruby. " +
             "Important: each search handles ONE symbol/query — run separate calls for different symbols. " +
             "Tips: search for symbol name directly instead of reading entire files; " +
