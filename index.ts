@@ -119,6 +119,8 @@ export default function tilthExtension(pi: ExtensionAPI) {
             "Tips: search for symbol name directly instead of reading entire files; " +
             "use budget=500 for large files then section to drill in; " +
             "use map=true once at start for orientation.",
+        promptSnippet:
+            "AST-aware code reading and search. Prefer tilth over read/grep/find/ls for file reads, symbol lookup, glob listing, and text or /regex/ search. Handle one query at a time; use scope, section, budget, and map=true for orientation.",
         parameters: tilthSchema,
 
         async execute(_toolCallId, params, signal, _onUpdate, ctx) {
