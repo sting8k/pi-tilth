@@ -1,6 +1,6 @@
 {
     "name": "pi-tilth",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "description": "AST-aware code reading via tilth — replaces read/grep/find/ls tools",
     "main": "index.ts",
     "keywords": [

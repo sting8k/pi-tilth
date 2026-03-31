@@ -76,8 +76,9 @@ function disableTilth(pi: ExtensionAPI): void {
 const tilthSchema = Type.Object({
     query: Type.String({
         description:
-            "File path to read, symbol name to search for, glob pattern (e.g. '*.ts'), plain text to search, or slash-wrapped regex content search (e.g. '/handle(Auth|Login)/'). " +
-            "For symbol search, provide the symbol name and set scope to the directory to search in. " +
+            "File path to read, symbol name to find definitions, glob pattern (e.g. '*.ts'), plain text to search, " +
+            "or slash-wrapped regex content search (e.g. '/handle(Auth|Login)/'). " +
+            "Comma-separated symbols are auto-detected for multi-symbol search (e.g. 'ServeHTTP, HandlersChain, Next'). " +
             "For file reading, provide the file path.",
     }),
     scope: Type.Optional(
@@ -100,6 +101,21 @@ const tilthSchema = Type.Object({
             description: "If true, generate a structural codebase map (file names + top-level symbols) instead of searching. Use once for orientation.",
         }),
     ),
+    expand: Type.Optional(
+        Type.Number({
+            description: "Expand N definition bodies inline in search results (default: 2). Set 0 to disable expansion.",
+        }),
+    ),
+    callers: Type.Optional(
+        Type.Boolean({
+            description: "If true, find all call sites of the symbol using structural tree-sitter matching (not text search).",
+        }),
+    ),
+    deps: Type.Optional(
+        Type.Boolean({
+            description: "If true, show blast-radius dependencies — which definitions are affected by changes to the given file.",
+        }),
+    ),
 });
 
 export default function tilthExtension(pi: ExtensionAPI) {
@@ -114,13 +130,16 @@ export default function tilthExtension(pi: ExtensionAPI) {
             "Query types: file path to read, symbol name to find definitions, " +
             "glob pattern (e.g. '*.ts') to list matching files, " +
             "plain text to search content (strings, comments, TODOs), or slash-wrapped regex for content search. " +
+            "Supports comma-separated multi-symbol queries (e.g. 'foo, bar, baz'). " +
             "Supports: Rust, TypeScript, JavaScript, Python, Go, Java, C, C++, Ruby. " +
-            "Important: each search handles ONE symbol/query — run separate calls for different symbols. " +
             "Tips: search for symbol name directly instead of reading entire files; " +
             "use budget=500 for large files then section to drill in; " +
-            "use map=true once at start for orientation.",
+            "use map=true once at start for orientation; " +
+            "use callers=true to find all call sites of a symbol; " +
+            "use deps=true to see blast-radius of changes to a file.",
         promptSnippet:
-            "AST-aware code reading and search. Prefer tilth over read/grep/find/ls for file reads, symbol lookup, glob listing, and text or /regex/ search. Handle one query at a time; use scope, section, budget, and map=true for orientation.",
+            "AST-aware code reading and search. Prefer tilth over read/grep/find/ls for file reads, symbol lookup, glob listing, and text or /regex/ search. " +
+            "Supports comma-separated multi-symbol queries. Use scope, section, budget, map=true for orientation, callers=true for call sites, deps=true for blast-radius.",
         parameters: tilthSchema,
 
         async execute(_toolCallId, params, signal, _onUpdate, ctx) {
@@ -132,6 +151,14 @@ export default function tilthExtension(pi: ExtensionAPI) {
             }
 
             const args: string[] = [];
+
+            if (params.callers) {
+                args.push("--callers");
+            }
+
+            if (params.deps) {
+                args.push("--deps");
+            }
 
             if (params.map) {
                 args.push("--map");
@@ -149,6 +176,10 @@ export default function tilthExtension(pi: ExtensionAPI) {
 
             if (params.budget) {
                 args.push("--budget", String(params.budget));
+            }
+
+            if (params.expand !== undefined) {
+                args.push("--expand", String(params.expand));
             }
 
             const result = await pi.exec("tilth", args, {
@@ -181,12 +212,21 @@ export default function tilthExtension(pi: ExtensionAPI) {
             if (args?.map) {
                 const scope = args.scope ? shortenPath(args.scope) : ".";
                 detail = `map ${scope}`;
+            } else if (args?.callers) {
+                const query = String(args?.query ?? "");
+                const scope = args?.scope ? shortenPath(args.scope) : "";
+                detail = scope ? `callers ${query}, ${scope}` : `callers ${query}`;
+            } else if (args?.deps) {
+                const query = String(args?.query ?? "");
+                const scope = args?.scope ? shortenPath(args.scope) : "";
+                detail = scope ? `deps ${query}, ${scope}` : `deps ${query}`;
             } else {
                 const query = String(args?.query ?? "");
                 const scope = args?.scope ? shortenPath(args.scope) : "";
                 const section = args?.section ? `, §${args.section}` : "";
                 const budget = args?.budget ? `, ${args.budget}` : "";
-                detail = scope ? `${query}, ${scope}${section}${budget}` : `${query}${section}${budget}`;
+                const expand = args?.expand !== undefined ? `, expand=${args.expand}` : "";
+                detail = scope ? `${query}, ${scope}${section}${budget}${expand}` : `${query}${section}${budget}${expand}`;
             }
             return new Text(`tilth (${theme.bold(detail)})`, 0, 0);
         },
