@@ -74,13 +74,13 @@ function disableTilth(pi: ExtensionAPI): void {
 }
 
 const tilthSchema = Type.Object({
-    query: Type.String({
+    query: Type.Optional(Type.String({
         description:
             "File path to read, symbol name to find definitions, glob pattern (e.g. '*.ts'), plain text to search, " +
             "or slash-wrapped regex content search (e.g. '/handle(Auth|Login)/'). " +
             "Comma-separated symbols are auto-detected for multi-symbol search (e.g. 'ServeHTTP, HandlersChain, Next'). " +
-            "For file reading, provide the file path.",
-    }),
+            "For file reading, provide the file path. Not needed when map=true.",
+    })),
     scope: Type.Optional(
         Type.String({
             description: "Directory to search within or resolve relative paths against. Defaults to current directory.",
